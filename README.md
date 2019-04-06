@@ -22,7 +22,8 @@ WiringPi: follow installation on [wiringpi.com](http://wiringpi.com/download-and
 
 libgd2: `sudo apt-get install libgd2-dev # libgd`
 
-epd2in7: `npm install epd2in7`
+*(note: I have not published this module; clone and compile)*
+~~epd2in7: `npm install epd2in7`~~
 
 
 ## Usage example
