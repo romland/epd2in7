@@ -22,35 +22,35 @@ using v8::Array;
 
 // Async worker
 class Epd2In7AsyncWorker : public Nan::AsyncWorker {
-  public:
+public:
     function <void ()> method;
 
     Epd2In7AsyncWorker(function <void ()> method, Nan::Callback *callback)
-      : Nan::AsyncWorker(callback) {
-      this->method = method;
+		: Nan::AsyncWorker(callback) {
+		this->method = method;
     }
 
 
     void Execute() {
-      this->method();
+		this->method();
     }
 
     void HandleOKCallback() {
-      Nan::HandleScope scope;
-      v8::Local<v8::Value> argv[] = {
-        Nan::Null(), // no error occured
-        Nan::Null()
-      };
-      callback->Call(2, argv);
+		Nan::HandleScope scope;
+		v8::Local<v8::Value> argv[] = {
+			Nan::Null(), // no error occured
+			Nan::Null()
+		};
+		callback->Call(2, argv);
     }
 
     void HandleErrorCallback() {
-      Nan::HandleScope scope;
-      v8::Local<v8::Value> argv[] = {
-        Nan::New(this->ErrorMessage()).ToLocalChecked(), // return error message
-        Nan::Null()
-      };
-      callback->Call(2, argv);
+		Nan::HandleScope scope;
+		v8::Local<v8::Value> argv[] = {
+			Nan::New(this->ErrorMessage()).ToLocalChecked(), // return error message
+			Nan::Null()
+		};
+		callback->Call(2, argv);
     }
 };
 
@@ -95,6 +95,7 @@ class Epd2In7AsyncWorker : public Nan::AsyncWorker {
 #define PROGRAM_MODE                                0xA0
 #define ACTIVE_PROGRAM                              0xA1
 #define READ_OTP_DATA                               0xA2
+
 const unsigned char lut_vcom_dc[] = {
 	0x00, 0x00,
 	0x00, 0x08, 0x00, 0x00, 0x00, 0x02,
@@ -250,22 +251,22 @@ void SetLut(bool fastLut) {
 }
 
 void width(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  Local<Number> num = Number::New(isolate, EPD_WIDTH);
-  args.GetReturnValue().Set(num);
+	Isolate* isolate = args.GetIsolate();
+	Local<Number> num = Number::New(isolate, EPD_WIDTH);
+	args.GetReturnValue().Set(num);
 }
 
 void height(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  Local<Number> num = Number::New(isolate, EPD_HEIGHT);
-  args.GetReturnValue().Set(num);
+	Isolate* isolate = args.GetIsolate();
+	Local<Number> num = Number::New(isolate, EPD_HEIGHT);
+	args.GetReturnValue().Set(num);
 }
 
 
 void init_sync(bool fastLut) {
 	if (EpdIf::IfInit() != 0) {
 		// TODO : throw error
-	}	else {
+	} else {
 		Reset();
 
 		SendCommand(POWER_SETTING);
