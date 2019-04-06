@@ -1,8 +1,10 @@
 # epd2in7
 
-A Node.js package for the 2.7inch e-Paper HAT(B) waveshare display on a Raspberry Pi 2/3/zero.
-It was forked from [williwasser's epd7x5 Node.js package](https://github.com/williwasser/epd7x5)
-It is rewritten in the Node non-blocking way and implements demo code provided by Waveshare for 2.inch e-Paper HAT(B).
+A Node.js package for the 2.7inch e-Paper HAT (epd2in7) Waveshare display.
+
+History:
+- Forked from [https://github.com/molaux/epd2in7b]https://github.com/molaux/epd2in7b
+- Which was forked from [https://github.com/williwasser/epd7x5]https://github.com/williwasser/epd7x5
 
 [Link to waveshare wiki](https://www.waveshare.com/wiki/2.7inch_e-Paper_HAT_(B))
 
