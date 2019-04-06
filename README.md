@@ -1,4 +1,4 @@
-# epd2in7b
+# epd2in7
 
 A Node.js package for the 2.7inch e-Paper HAT(B) waveshare display on a Raspberry Pi 2/3/zero.
 It was forked from [williwasser's epd7x5 Node.js package](https://github.com/williwasser/epd7x5)
@@ -18,13 +18,13 @@ WiringPi: follow installation on [wiringpi.com](http://wiringpi.com/download-and
 
 libgd2: `sudo apt-get install libgd2-dev # libgd`
 
-epd2in7b: `npm install epd2in7b`
+epd2in7: `npm install epd2in7`
 
 
 ## Usage example
 
 ```javascript
-const epd = require('epd2in7b')
+const epd = require('epd2in7')
 const font = '/home/marco/fonts/Roboto-Regular.ttf';
 const fontSize = 12
 

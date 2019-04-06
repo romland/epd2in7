@@ -523,4 +523,4 @@ void InitAll(Local<Object> exports) {
 	NODE_SET_METHOD(exports, "displayFrame", displayFrame);
 }
 
-NODE_MODULE(epd2in7b, InitAll)
+NODE_MODULE(epd2in7, InitAll)

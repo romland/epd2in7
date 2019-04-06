@@ -1,4 +1,4 @@
-const epd2in7b = require('./build/Release/epd2in7b');
+const epd2in7 = require('./build/Release/epd2in7');
 const gd = require('node-gd');
 
 const button1 = 5
@@ -15,8 +15,8 @@ const buttons = new Promise((resolve) => {
 	resolve(handler);
 })
 
-const width = epd2in7b.width();
-const height = epd2in7b.height();
+const width = epd2in7.width();
+const height = epd2in7.height();
 
 function getImageBuffer(orientation) {
 	return new Promise(resolve => {
@@ -64,7 +64,7 @@ function displayImageBuffer(img) {
 				}
 			}
 		}
-		epd2in7b.displayFrame(
+		epd2in7.displayFrame(
 			bufBlack, //hasBlack ? bufBlack : null,
 			bufRed, //hasRed ? bufRed : null,
 			() => {
@@ -79,19 +79,19 @@ exports.getImageBuffer = getImageBuffer;
 exports.displayImageBuffer = displayImageBuffer;
 
 exports.init = options => new Promise(resolve => {
-	epd2in7b.init(options, () => {
+	epd2in7.init(options, () => {
 		resolve();
 	});
 })
 
 exports.clear = () => new Promise(resolve => {
-	epd2in7b.clear(() => {
+	epd2in7.clear(() => {
 		resolve();
 	});
 })
 
 exports.sleep = () => new Promise(resolve => {
-	epd2in7b.sleep(() => {
+	epd2in7.sleep(() => {
 		resolve();
 	});
 })
