@@ -336,218 +336,191 @@ void init_sync(bool fastLut) {
 
 void init(const FunctionCallbackInfo<Value>& args) {
 	Isolate* isolate = args.GetIsolate();
-  bool fastLut = false;
+	bool fastLut = false;
 
-  if(args.Length() > 0 ) {
-    if (!args[0]->IsObject()) {
-      isolate->ThrowException(Exception::TypeError(
-      String::NewFromUtf8(isolate, "Error: object expected")));
-      return;
-    }
+	if(args.Length() > 0 ) {
+		if (!args[0]->IsObject()) {
+		isolate->ThrowException(Exception::TypeError(
+		String::NewFromUtf8(isolate, "Error: object expected")));
+		return;
+		}
 
-    Local<Context> context = isolate->GetCurrentContext();
-    Local<Object> obj = args[0]->ToObject(context).ToLocalChecked();
-    Local<Array> props = obj->GetOwnPropertyNames(context).ToLocalChecked();
+		Local<Context> context = isolate->GetCurrentContext();
+		Local<Object> obj = args[0]->ToObject(context).ToLocalChecked();
+		Local<Array> props = obj->GetOwnPropertyNames(context).ToLocalChecked();
 
-    for(int i = 0, l = props->Length(); i < l; i++) {
-      Local<Value> localKey = props->Get(i);
-      Local<Value> localVal = obj->Get(context, localKey).ToLocalChecked();
-      std::string key = *String::Utf8Value(localKey);
-      // std::string val = *String::Utf8Value(localVal);
-      // std::cout << key << ":" << val << std::endl;
-      if (key.compare("fastLut") == 0) {
-        // bool fastLut = localVal.ToBoolean();
-        // Local<Boolean> flag = localVal;
-        // Local<Boolean> flag = obj->Get(context, localKey);
-        // bool fastLut = Boolean::BooleanValue(flag);
-        fastLut = localVal->NumberValue();
-        // std::cout << "setting" << ":" << fastLut << std::endl;
-      }
-    }
-  }
-  Nan::AsyncQueueWorker(new Epd2In7AsyncWorker(
-    bind(init_sync, fastLut),
-    new Nan::Callback(args[1].As<v8::Function>())
-  ));
+		for(int i = 0, l = props->Length(); i < l; i++) {
+		Local<Value> localKey = props->Get(i);
+		Local<Value> localVal = obj->Get(context, localKey).ToLocalChecked();
+		std::string key = *String::Utf8Value(localKey);
+		// std::string val = *String::Utf8Value(localVal);
+		// std::cout << key << ":" << val << std::endl;
+		if (key.compare("fastLut") == 0) {
+			// bool fastLut = localVal.ToBoolean();
+			// Local<Boolean> flag = localVal;
+			// Local<Boolean> flag = obj->Get(context, localKey);
+			// bool fastLut = Boolean::BooleanValue(flag);
+			fastLut = localVal->NumberValue();
+			// std::cout << "setting" << ":" << fastLut << std::endl;
+		}
+		}
+	}
+	Nan::AsyncQueueWorker(new Epd2In7AsyncWorker(
+		bind(init_sync, fastLut),
+		new Nan::Callback(args[1].As<v8::Function>())
+	));
 }
 
 
-void display(UBYTE * blackImage, UBYTE * redImage)
+void display(UBYTE * image)
 {
-    UWORD Width, Height;
-    Width = (EPD_WIDTH % 8 == 0)? (EPD_WIDTH / 8 ): (EPD_WIDTH / 8 + 1);
-    Height = EPD_HEIGHT;
+	UWORD Width, Height;
+	Width = (EPD_WIDTH % 8 == 0)? (EPD_WIDTH / 8 ): (EPD_WIDTH / 8 + 1);
+	Height = EPD_HEIGHT;
 
-    if (blackImage != NULL) {
-      SendCommand(DATA_START_TRANSMISSION_1);
-      for (UWORD j = 0; j < Height; j++) {
-          for (UWORD i = 0; i < Width; i++) {
-            UBYTE buffer = 0xff;
-            for (UWORD k = 0; k < 8; k++) {
-              buffer = (buffer << 1) | (blackImage[ 8 * (i + j * Width) + k ] & 0x01);
-            }
-            SendData(buffer);
-          }
-      }
-      SendData(DATA_STOP);
-    }
+	SendCommand(DATA_START_TRANSMISSION_1);
+	for (UWORD j = 0; j < Height; j++) {
+		for (UWORD i = 0; i < Width; i++) {
+			SendData(0xff);
+		}
+	}
 
-    if (redImage != NULL) {
-      SendCommand(DATA_START_TRANSMISSION_2);
-      for (UWORD j = 0; j < Height; j++) {
-          for (UWORD i = 0; i < Width; i++) {
-            UBYTE buffer = 0xff;
-            for (UWORD k = 0; k < 8; k++) {
-              buffer = (buffer << 1) | (redImage[ 8 * (i + j * Width) + k ] & 0x01);
-            }
-            SendData(buffer);
-          }
-      }
-      SendData(DATA_STOP);
-    }
+	SendCommand(DATA_START_TRANSMISSION_2);
+	for (UWORD j = 0; j < Height; j++) {
+		for (UWORD i = 0; i < Width; i++) {
+			UBYTE buffer = 0xff;
+			for (UWORD k = 0; k < 8; k++) {
+				buffer = (buffer << 1) | (image[ 8 * (i + j * Width) + k ] & 0x01);
+			}
+			SendData(buffer);
+		}
+	}
 
-    SendCommand(DISPLAY_REFRESH);
-    WaitUntilIdle();
+	SendCommand(DISPLAY_REFRESH);
+	WaitUntilIdle();
 }
 
 // TODO : dig in partial refresh
 void partialDisplay(UBYTE * Imageblack, UBYTE * Imagered, UWORD x, UWORD y, UWORD w, UWORD h)
 {
-    UWORD Width, Height;
-    Width = (EPD_WIDTH % 8 == 0)? (EPD_WIDTH / 8 ): (EPD_WIDTH / 8 + 1);
-    Height = EPD_HEIGHT;
+	UWORD Width, Height;
+	Width = (EPD_WIDTH % 8 == 0)? (EPD_WIDTH / 8 ): (EPD_WIDTH / 8 + 1);
+	Height = EPD_HEIGHT;
 
-    SendCommand(PARTIAL_DATA_START_TRANSMISSION_1);
-    // send x
-    SendData((UBYTE) (x >> 8));
-    SendData((UBYTE) (x & (0xff << 3)));
-    //send y
-    SendData((UBYTE) (y >> 8));
-    SendData((UBYTE) y);
-    //send w
-    SendData((UBYTE) (w >> 8));
-    SendData((UBYTE) (w & (0xff << 3)));
-    //send h
-    SendData((UBYTE) (h >> 8));
-    SendData((UBYTE) h);
+	SendCommand(PARTIAL_DATA_START_TRANSMISSION_1);
+	// send x
+	SendData((UBYTE) (x >> 8));
+	SendData((UBYTE) (x & (0xff << 3)));
+	//send y
+	SendData((UBYTE) (y >> 8));
+	SendData((UBYTE) y);
+	//send w
+	SendData((UBYTE) (w >> 8));
+	SendData((UBYTE) (w & (0xff << 3)));
+	//send h
+	SendData((UBYTE) (h >> 8));
+	SendData((UBYTE) h);
 
-    for (UWORD j = 0; j < Height; j++) {
-        for (UWORD i = 0; i < Width; i++) {
-          UBYTE buffer = 0xff;
-          for (UWORD k = 0; k < 8; k++) {
-            buffer = (buffer << 1) | (Imageblack[ 8 * (i + j * Width) + k ] & 0x01);
-          }
-          SendData(buffer);
-        }
-    }
-    SendData(DATA_STOP);
+	for (UWORD j = 0; j < Height; j++) {
+		for (UWORD i = 0; i < Width; i++) {
+		UBYTE buffer = 0xff;
+		for (UWORD k = 0; k < 8; k++) {
+			buffer = (buffer << 1) | (Imageblack[ 8 * (i + j * Width) + k ] & 0x01);
+		}
+		SendData(buffer);
+		}
+	}
+	SendData(DATA_STOP);
 
-    // if (Imagered != NULL) {
-    //   SendCommand(DATA_START_TRANSMISSION_2);
-    //   for (UWORD j = 0; j < Height; j++) {
-    //       for (UWORD i = 0; i < Width; i++) {
-    //           SendData(Imagered[i + j * Width]);
-    //       }
-    //   }
-    //   SendData(DATA_STOP);
-    // }
+	// if (Imagered != NULL) {
+	//   SendCommand(DATA_START_TRANSMISSION_2);
+	//   for (UWORD j = 0; j < Height; j++) {
+	//       for (UWORD i = 0; i < Width; i++) {
+	//           SendData(Imagered[i + j * Width]);
+	//       }
+	//   }
+	//   SendData(DATA_STOP);
+	// }
 
-    SendCommand(PARTIAL_DISPLAY_REFRESH);
-    // send x
-    SendData((UBYTE) (x >> 8));
-    SendData((UBYTE) x);
-    //send y
-    SendData((UBYTE) (y >> 8));
-    SendData((UBYTE) y);
-    //send w
-    SendData((UBYTE) (w >> 8));
-    SendData((UBYTE) w);
-    //send h
-    SendData((UBYTE) (h >> 8));
-    SendData((UBYTE) h);
+	SendCommand(PARTIAL_DISPLAY_REFRESH);
+	// send x
+	SendData((UBYTE) (x >> 8));
+	SendData((UBYTE) x);
+	//send y
+	SendData((UBYTE) (y >> 8));
+	SendData((UBYTE) y);
+	//send w
+	SendData((UBYTE) (w >> 8));
+	SendData((UBYTE) w);
+	//send h
+	SendData((UBYTE) (h >> 8));
+	SendData((UBYTE) h);
 
-    WaitUntilIdle();
+	WaitUntilIdle();
 }
 
 
 void displayFrame(const FunctionCallbackInfo<Value>& args) {
-  UBYTE* blackImageData = NULL;
-  UBYTE* redImageData = NULL;
+	UBYTE* blackImageData = NULL;
+	// UBYTE* redImageData = NULL;
 
-  if ( ! args[0]->IsNull()) {
-  	v8::Local<v8::Uint8Array> blackView = args[0].As<v8::Uint8Array>();
-  	void *blackData = blackView->Buffer()->GetContents().Data();
-  	blackImageData = static_cast<UBYTE*>(blackData);
-  }
+	if ( ! args[0]->IsNull()) {
+		v8::Local<v8::Uint8Array> blackView = args[0].As<v8::Uint8Array>();
+		void *blackData = blackView->Buffer()->GetContents().Data();
+		blackImageData = static_cast<UBYTE*>(blackData);
+	}
 
-  if ( ! args[1]->IsNull()) {
-    v8::Local<v8::Uint8Array> redView = args[1].As<v8::Uint8Array>();
-  	void *redData = redView->Buffer()->GetContents().Data();
-  	redImageData = static_cast<UBYTE*>(redData);
-  }
-
-  Nan::AsyncQueueWorker(new Epd2In7AsyncWorker(
-    bind(display, blackImageData, redImageData),
-    new Nan::Callback(args[2].As<v8::Function>())
-  ));
+	Nan::AsyncQueueWorker(new Epd2In7AsyncWorker(
+		bind(display, blackImageData/*, redImageData*/),
+		new Nan::Callback(args[2].As<v8::Function>())
+	));
 }
 
 
 
 void clear_sync(void) {
-    UWORD Width, Height;
-    Width = (EPD_WIDTH % 8 == 0)? (EPD_WIDTH / 8 ): (EPD_WIDTH / 8 + 1);
-    Height = EPD_HEIGHT;
+	SendCommand(DATA_START_TRANSMISSION_1);
+	for(UWORD j = 0; j < EPD_WIDTH * EPD_HEIGHT / 8; j++) {
+		SendData(0xFF);
+	}
 
-    SendCommand(DATA_START_TRANSMISSION_1);
-    for (UWORD j = 0; j < Height; j++) {
-        for (UWORD i = 0; i < Width; i++) {
-            SendData(0X00);
-        }
-    }
-    SendData(DATA_STOP);
-
-    SendCommand(DATA_START_TRANSMISSION_2);
-    for (UWORD j = 0; j < Height; j++) {
-        for (UWORD i = 0; i < Width; i++) {
-            SendData(0X00);
-        }
-    }
-    SendData(DATA_STOP);
-
-    SendCommand(DISPLAY_REFRESH);
-    WaitUntilIdle();
+	SendCommand(DATA_START_TRANSMISSION_1);
+	for(UWORD j = 0; j < EPD_WIDTH * EPD_HEIGHT / 8; j++) {
+		SendData(0xFF);
+	}
+	SendCommand(DISPLAY_REFRESH);
+	WaitUntilIdle();
 }
 
 void clear(const FunctionCallbackInfo<Value>& args) {
-  Nan::AsyncQueueWorker(new Epd2In7AsyncWorker(
-    bind(clear_sync),
-    new Nan::Callback(args[0].As<v8::Function>())
-  ));
+	Nan::AsyncQueueWorker(new Epd2In7AsyncWorker(
+		bind(clear_sync),
+		new Nan::Callback(args[0].As<v8::Function>())
+	));
 }
 
 void sleep_sync(void) {
-  SendCommand(0X50);
-  SendData(0xf7);
-  SendCommand(0X02);  	//power off
-  SendCommand(0X07);  	//deep sleep
-  SendData(0xA5);
+	SendCommand(0x50);
+	SendData(0xf7);
+	SendCommand(0x02);  	//power off
+	SendCommand(0x07);  	//deep sleep
+	SendData(0xA5);
 }
 
 void sleep(const FunctionCallbackInfo<Value>& args) {
-  Nan::AsyncQueueWorker(new Epd2In7AsyncWorker(
-    bind(sleep_sync),
-    new Nan::Callback(args[0].As<v8::Function>())
-  ));
+	Nan::AsyncQueueWorker(new Epd2In7AsyncWorker(
+		bind(sleep_sync),
+		new Nan::Callback(args[0].As<v8::Function>())
+	));
 }
 
 void InitAll(Local<Object> exports) {
-  NODE_SET_METHOD(exports, "init", init);
-  NODE_SET_METHOD(exports, "clear", clear);
-  NODE_SET_METHOD(exports, "sleep", sleep);
-  NODE_SET_METHOD(exports, "width", width);
-  NODE_SET_METHOD(exports, "height", height);
-  NODE_SET_METHOD(exports, "displayFrame", displayFrame);
+	NODE_SET_METHOD(exports, "init", init);
+	NODE_SET_METHOD(exports, "clear", clear);
+	NODE_SET_METHOD(exports, "sleep", sleep);
+	NODE_SET_METHOD(exports, "width", width);
+	NODE_SET_METHOD(exports, "height", height);
+	NODE_SET_METHOD(exports, "displayFrame", displayFrame);
 }
 
 NODE_MODULE(epd2in7b, InitAll)
