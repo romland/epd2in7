@@ -262,68 +262,75 @@ void height(const FunctionCallbackInfo<Value>& args) {
 }
 
 
-
 void init_sync(bool fastLut) {
-  if (EpdIf::IfInit() != 0) {
-    // TODO : throw error
-  }	else {
-    Reset();
+	if (EpdIf::IfInit() != 0) {
+		// TODO : throw error
+	}	else {
+		Reset();
 
-    SendCommand(POWER_ON);
-    WaitUntilIdle();
+		SendCommand(POWER_SETTING);
+		SendData(0x03);                  // VDS_EN, VDG_EN
+		SendData(0x00);                  // VCOM_HV, VGHL_LV[1], VGHL_LV[0]
+		SendData(0x2b);                  // VDH
+		SendData(0x2b);                  // VDL
+		SendData(0x09);                  // VDHR
 
-    SendCommand(PANEL_SETTING);
-    SendData(0xaf);        //KW-BF   KWR-AF    BWROTP 0f
+		SendCommand(BOOSTER_SOFT_START);
+		SendData(0x07);
+		SendData(0x07);
+		SendData(0x17);
 
-    SendCommand(PLL_CONTROL);
-    SendData(0x3a);       //3A 100HZ   29 150Hz 39 200HZ    31 171HZ
+		// Power optimization (v)
+		SendCommand(0xF8);
+		SendData(0x60);
+		SendData(0xA5);
 
-    SendCommand(POWER_SETTING);
-    SendData(0x03);                  // VDS_EN, VDG_EN
-    SendData(0x00);                  // VCOM_HV, VGHL_LV[1], VGHL_LV[0]
-    SendData(0x2b);                  // VDH
-    SendData(0x2b);                  // VDL
-    SendData(0x09);                  // VDHR
+		// Power optimization (v)
+		SendCommand(0xF8);
+		SendData(0x89);
+		SendData(0xA5);
 
-    SendCommand(BOOSTER_SOFT_START);
-    SendData(0x07);
-    SendData(0x07);
-    SendData(0x17);
+		// Power optimization (v)
+		SendCommand(0xF8);
+		SendData(0x90);
+		SendData(0x00);
 
-    // Power optimization
-    SendCommand(0xF8);
-    SendData(0x60);
-    SendData(0xA5);
+		// Power optimization (v)
+		SendCommand(0xF8);
+		SendData(0x93);
+		SendData(0x2A);
 
-    // Power optimization
-    SendCommand(0xF8);
-    SendData(0x89);
-    SendData(0xA5);
+		// Power optimization (epd2in7)
+		SendCommand(0xF8);
+		SendData(0xA0);
+		SendData(0xA5);
 
-    // Power optimization
-    SendCommand(0xF8);
-    SendData(0x90);
-    SendData(0x00);
+		// Power optimization (epd2in7)
+		SendCommand(0xF8);
+		SendData(0xA1);
+		SendData(0x00);
 
-    // Power optimization
-    SendCommand(0xF8);
-    SendData(0x93);
-    SendData(0x2A);
+		// Power optimization (v)
+		SendCommand(0xF8);
+		SendData(0x73);
+		SendData(0x41);
 
-    // Power optimization
-    SendCommand(0xF8);
-    SendData(0x73);
-    SendData(0x41);
+		SendCommand(PARTIAL_DISPLAY_REFRESH);
+		SendData(0x00);
 
-    SendCommand(VCM_DC_SETTING_REGISTER);
-    SendData(0x12);
-    SendCommand(VCOM_AND_DATA_INTERVAL_SETTING);
-    SendData(0x87);        // define by OTP
+		SendCommand(POWER_ON);
+		WaitUntilIdle();
 
-    SetLut(fastLut);
+		SendCommand(PANEL_SETTING);
+		SendData(0xaf);        //KW-BF   KWR-AF    BWROTP 0f
 
-    SendCommand(PARTIAL_DISPLAY_REFRESH);
-    SendData(0x00);
+		SendCommand(PLL_CONTROL);
+		SendData(0x3a);       //3A 100HZ   29 150Hz 39 200HZ    31 171HZ
+
+		SendCommand(VCM_DC_SETTING_REGISTER);
+		SendData(0x12);
+
+		SetLut(fastLut);
 	}
 }
 
