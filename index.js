@@ -12,6 +12,7 @@ const buttons = new Promise((resolve) => {
 	let handler = rpi_gpio_buttons(
 		[button1, button2, button3, button4],
 		{ mode: rpi_gpio_buttons.MODE_BCM });
+	handler.setTiming({ pressed: 400 });
 	resolve(handler);
 })
 
@@ -41,32 +42,24 @@ function getImageBuffer(orientation) {
 function displayImageBuffer(img) {
 	return new Promise(resolve => {
 		let bufBlack = new Buffer.alloc(width * height, 0);
-		let bufRed = new Buffer.alloc(width * height, 0);
 		let hasBlack = false;
-		let hasRed = false;
 
 		for(let y = 0; y < height; y++) {
 			for(let  x = 0; x < width; x++) {
 				let color = img.height == height
 					? img.getPixel(x, y)
 					: img.getPixel(img.width - y, x);
-				if (color < 64) { //white
+				if (color < 1) { //white
 					bufBlack[ x + y * width ] = 0x00;
-					bufRed[ x + y * width ] = 0x00;
-				} else if (color < 192) { //black
+				} else {
 					hasBlack = true;
 					bufBlack[ x + y * width ] = 0xff;
-					bufRed[ x + y * width ] = 0x00;
-				} else { // red
-					hasRed = true;
-					bufBlack[ x + y * width ] = 0x00;
-					bufRed[ x + y * width ] = 0xff;
 				}
 			}
 		}
 		epd2in7.displayFrame(
 			bufBlack, //hasBlack ? bufBlack : null,
-			bufRed, //hasRed ? bufRed : null,
+			null, // bufRed, //hasRed ? bufRed : null,
 			() => {
 				resolve();
 			}
