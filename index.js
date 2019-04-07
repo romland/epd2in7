@@ -12,7 +12,7 @@ const buttons = new Promise((resolve) => {
 	let handler = rpi_gpio_buttons(
 		[button1, button2, button3, button4],
 		{ mode: rpi_gpio_buttons.MODE_BCM });
-	handler.setTiming({ pressed: 400 });
+	// handler.setTiming({ pressed: 400 });
 	resolve(handler);
 })
 
