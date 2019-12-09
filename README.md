@@ -1,7 +1,7 @@
-# epd2in7
-
-A Node.js package for the 2.7inch e-Paper HAT (epd2in7) Waveshare display.
-Note: Some changes in [this fork](https://github.com/romland/epd2in7) may be good for epd2in7b too, especially the [tweaked initialization](https://github.com/romland/epd2in7/commit/802ee29dfb3753db3d8893c40cb8a49ad9869838). I am however unable to test as I do not own a epd2in7B.
+# epd2in7 (nee epd2in7b)
+About _my_ fork (romland/epd2in7)
+> A Node.js package for the 2.7inch e-Paper HAT (epd2in7) Waveshare display.
+> Note: Some changes in [this fork](https://github.com/romland/epd2in7) may be good for epd2in7b too, especially the [tweaked > initialization](https://github.com/romland/epd2in7/commit/802ee29dfb3753db3d8893c40cb8a49ad9869838). I am however unable to test as I do not own a epd2in7B.
 
 History:
 - Forked from https://github.com/molaux/epd2in7b
